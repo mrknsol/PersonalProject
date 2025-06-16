@@ -6,6 +6,10 @@ import WheelOfFortunePage from "../pages/WheelOfFortunePage"
 
 export const layoutChildren = [
     {
+        path: "/",
+        element: <HomePage />,
+    },
+    {
         path: "home",
         element: <HomePage />,
     },

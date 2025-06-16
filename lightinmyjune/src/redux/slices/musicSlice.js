@@ -6,8 +6,9 @@ export const fetchTracks = createAsyncThunk(
   'music/fetchTracks',
   async (mood, { rejectWithValue }) => {
     try {
+      // mood — строка, например "happy"
       const response = await axios.post('http://localhost:5274/api/Music/recommend', { mood });
-      return response.data;
+      return response.data; // массив треков
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
     }

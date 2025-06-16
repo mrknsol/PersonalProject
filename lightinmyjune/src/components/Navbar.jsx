@@ -68,7 +68,7 @@ export default function Navbar() {
           id="navbar-menu"
         >
           <ul className="flex flex-col md:flex-row md:space-x-6 mt-4 md:mt-0 font-medium text-gray-700 dark:text-gray-200">
-            {layoutChildren.map(({ path }) => (
+            {layoutChildren.slice(1).map(({ path }) => (
               <li key={path}>
                 <Link
                   to={`/${path}`}

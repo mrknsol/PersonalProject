@@ -3,41 +3,42 @@ using lightinmyjune_api.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Регистрируем LastFmMoodService с HttpClient
+builder.Services.AddHttpClient<IMusicService, MusicService>();
+builder.Services.AddSingleton<IFactService, FactsService>();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowLocalhost3000", policy =>
-    {
-        policy.WithOrigins("http://localhost:3000")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
+    options.AddPolicy("AllowReactApp",
+        policy =>
+        {
+            policy
+                .WithOrigins("http://localhost:3000") // Адрес твоего React dev-сервера
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
 });
 
-builder.Services.AddSingleton<IFactService, FactsService>();
-builder.Services.AddHttpClient<MusicService>();
-builder.Services.AddSingleton<IMusicService>(sp =>
-{
-    var httpClient = sp.GetRequiredService<HttpClient>();
-    var config = builder.Configuration;
-    return new MusicService(httpClient,
-        config["client_Id"]!,
-        config["client_secret"]!);
-});
+// Добавляем контроллеры
+builder.Services.AddControllers();
+
+// Swagger (если нужен)
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Middleware для разработки
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
+}
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-app.UseCors("AllowLocalhost3000");
-
+app.UseCors("AllowReactApp");
 app.MapControllers();
 
 app.Run();

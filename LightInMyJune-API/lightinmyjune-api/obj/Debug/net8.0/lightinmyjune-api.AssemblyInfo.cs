@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("lightinmyjune-api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+304113e1b78580ede0bb3cf1fdbaaeefac9619cc")]
 [assembly: System.Reflection.AssemblyProductAttribute("lightinmyjune-api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("lightinmyjune-api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

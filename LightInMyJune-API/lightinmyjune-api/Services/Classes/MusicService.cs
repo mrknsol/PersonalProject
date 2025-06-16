@@ -1,156 +1,119 @@
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text.Json;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Linq;
-using System;
-using lightinmyjune_api.Models;
+using Microsoft.Extensions.Configuration;
 using lightinmyjune_api.Services.Interfaces;
+using lightinmyjune_api.Models; 
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System;
+using System.Text;
+using System.Linq;
 
 namespace lightinmyjune_api.Services.Classes
 {
     public class MusicService : IMusicService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _clientId;
-        private readonly string _clientSecret;
-        private string _accessToken;
+        private readonly string _lastFmApiKey;
+        private readonly HttpClient _spotifyClient;
 
-        // Соответствие настроений аудио-характеристикам
-        private readonly Dictionary<string, (string seed, float valence, float energy)> _moodSettings = new()
-        {
-            {"happy", ("", 0.8f, 0.8f)},
-            {"sad", ("", 0.2f, 0.3f)},
-            {"relaxed", ("", 0.6f, 0.3f)},
-            {"energetic", ("", 0.7f, 0.9f)},
-            {"romantic", ("romantic", 0.7f, 0.4f)},
-            {"nostalgic", ("nostalgic", 0.5f, 0.5f)},
-            {"focus", ("focus", 0.5f, 0.6f)},
-            {"party", ("party", 0.8f, 0.9f)}
-        };
-
-        public MusicService(HttpClient httpClient, string clientId, string clientSecret)
+        public MusicService(HttpClient httpClient, HttpClient spotifyClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            _clientId = clientId;
-            _clientSecret = clientSecret;
+            _spotifyClient = spotifyClient;
+            _lastFmApiKey = configuration["LastFm:ApiKey"];
         }
 
-        public async Task AuthenticateAsync()
+        // Получение токена Spotify
+        public async Task<string> GetSpotifyAccessTokenAsync()
         {
-            var tokenRequest = new HttpRequestMessage(HttpMethod.Post, "https://accounts.spotify.com/api/token");
-            var authHeader = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{_clientId}:{_clientSecret}"));
-            tokenRequest.Headers.Authorization = new AuthenticationHeaderValue("Basic", authHeader);
-            tokenRequest.Content = new FormUrlEncodedContent(new Dictionary<string, string> { { "grant_type", "client_credentials" } });
+            var clientId = "5050f4b1bc30494d8303ba323eceb67d";
+            var clientSecret = "8050cb1626614833a2c9ba58716bf875";
 
-            var response = await _httpClient.SendAsync(tokenRequest);
+            var authToken = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{clientId}:{clientSecret}"));
+
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://accounts.spotify.com/api/token");
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", authToken);
+            request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                { "grant_type", "client_credentials" }
+            });
+
+            var response = await _httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
 
-            var json = await response.Content.ReadAsStringAsync();
-            using var doc = JsonDocument.Parse(json);
-            _accessToken = doc.RootElement.GetProperty("access_token").GetString();
+            var json = JsonDocument.Parse(await response.Content.ReadAsStreamAsync());
+            var token = json.RootElement.GetProperty("access_token").GetString();
 
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+            return token;
         }
 
-        public async Task<List<TrackDto>> GetTracksByMoodAsync(string mood)
+        public async Task<List<Song>> GetTrackUrlsByMoodAsync(string mood)
         {
-            if (string.IsNullOrWhiteSpace(_accessToken))
-                await AuthenticateAsync();
+            var spotifyToken = await GetSpotifyAccessTokenAsync();
 
-            // Нормализация настроения
-            var normalizedMood = mood.ToLower().Trim();
-            
-            // Стратегия 1: Поиск по аудио-характеристикам
-            if (_moodSettings.ContainsKey(normalizedMood))
-            {
-                return await GetTracksByAudioFeatures(normalizedMood);
-            }
-            
-            // Стратегия 2: Поиск по плейлистам (резервный метод)
-            return await GetTracksFromMoodPlaylists(normalizedMood);
-        }
-
-        public async Task<List<TrackDto>> GetTracksByAudioFeatures(string mood)
-        {
-            var (seedGenre, targetValence, targetEnergy) = _moodSettings[mood];
             var random = new Random();
-            
-            // Поиск рекомендаций на основе аудио-характеристик
-            var url = "https://api.spotify.com/v1/recommendations?" +
-                      $"limit=10&" +
-                      $"target_valence={targetValence}&" +
-                      $"target_energy={targetEnergy}&" +
-                      $"seed_genres={seedGenre}";
+            // Случайная страница от 1 до 4
+            var page = random.Next(1, 5);
+
+            var url = $"https://ws.audioscrobbler.com/2.0/?method=tag.gettoptracks&tag={Uri.EscapeDataString(mood)}&api_key={_lastFmApiKey}&format=json&limit=10&page={page}";
 
             var response = await _httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
 
-            var json = await response.Content.ReadAsStringAsync();
-            using var doc = JsonDocument.Parse(json);
+            using var stream = await response.Content.ReadAsStreamAsync();
+            var json = await JsonDocument.ParseAsync(stream);
 
-            var result = new List<TrackDto>();
-            
-            foreach (var track in doc.RootElement.GetProperty("tracks").EnumerateArray())
+            var result = new List<Song>();
+
+            if (json.RootElement.TryGetProperty("tracks", out var tracks) &&
+                tracks.TryGetProperty("track", out var trackList))
             {
-                result.Add(new TrackDto
+                foreach (var track in trackList.EnumerateArray())
                 {
-                    Name = track.GetProperty("name").GetString(),
-                    Artist = string.Join(", ", track.GetProperty("artists").EnumerateArray().Select(a => a.GetProperty("name").GetString())),
-                    Url = track.GetProperty("external_urls").GetProperty("spotify").GetString()
-                });
+                    var name = track.GetProperty("name").GetString();
+                    var artist = track.GetProperty("artist").GetProperty("name").GetString();
+
+                    var spotifyUrl = await SearchSpotifyTrackUrlAsync(name, artist, spotifyToken);
+
+                    result.Add(new Song
+                    {
+                        Artist = artist,
+                        Name = name,
+                        Url = spotifyUrl ?? track.GetProperty("url").GetString()
+                    });
+                }
             }
 
-            return result;
+            // Перемешиваем и берем первые 5 треков (если меньше 5 — сколько есть)
+            var shuffled = result.OrderBy(x => random.Next()).Take(5).ToList();
+
+            return shuffled;
         }
 
-        public async Task<List<TrackDto>> GetTracksFromMoodPlaylists(string mood)
+        public async Task<string> SearchSpotifyTrackUrlAsync(string trackName, string artistName, string accessToken)
         {
-            // Шаг 1: Поиск плейлистов по настроению
-            var playlistUrl = $"https://api.spotify.com/v1/search?q={Uri.EscapeDataString(mood)}&type=playlist&limit=5";
-            var playlistResponse = await _httpClient.GetAsync(playlistUrl);
-            playlistResponse.EnsureSuccessStatusCode();
+            var query = Uri.EscapeDataString($"track:{trackName} artist:{artistName}");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"https://api.spotify.com/v1/search?q={query}&type=track&limit=1");
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
-            var playlistJson = await playlistResponse.Content.ReadAsStringAsync();
-            using var playlistDoc = JsonDocument.Parse(playlistJson);
-            
-            var playlists = playlistDoc.RootElement
-                .GetProperty("playlists")
-                .GetProperty("items")
-                .EnumerateArray()
-                .ToList();
+            var response = await _spotifyClient.SendAsync(request);
+            if (!response.IsSuccessStatusCode) return null;
 
-            if (!playlists.Any()) 
-                return new List<TrackDto>();
+            var json = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
 
-            // Выбираем случайный плейлист
-            var random = new Random();
-            var randomPlaylist = playlists[random.Next(playlists.Count)];
-            var playlistId = randomPlaylist.GetProperty("id").GetString();
-
-            // Шаг 2: Получаем треки из плейлиста
-            var tracksUrl = $"https://api.spotify.com/v1/playlists/{playlistId}/tracks?limit=15";
-            var tracksResponse = await _httpClient.GetAsync(tracksUrl);
-            tracksResponse.EnsureSuccessStatusCode();
-
-            var tracksJson = await tracksResponse.Content.ReadAsStringAsync();
-            using var tracksDoc = JsonDocument.Parse(tracksJson);
-
-            var result = new List<TrackDto>();
-            
-            foreach (var item in tracksDoc.RootElement.GetProperty("items").EnumerateArray())
+            if (json.RootElement.TryGetProperty("tracks", out var tracks) &&
+                tracks.GetProperty("items").GetArrayLength() > 0)
             {
-                var track = item.GetProperty("track");
-                result.Add(new TrackDto
+                var firstTrack = tracks.GetProperty("items")[0];
+                if (firstTrack.TryGetProperty("external_urls", out var externalUrls) &&
+                    externalUrls.TryGetProperty("spotify", out var spotifyLink))
                 {
-                    Name = track.GetProperty("name").GetString(),
-                    Artist = string.Join(", ", track.GetProperty("artists").EnumerateArray().Select(a => a.GetProperty("name").GetString())),
-                    Url = track.GetProperty("external_urls").GetProperty("spotify").GetString()
-                });
+                    return spotifyLink.GetString();
+                }
             }
 
-            return result;
+            return null;
         }
     }
 }

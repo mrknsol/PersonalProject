@@ -1,28 +1,26 @@
+using Microsoft.AspNetCore.Mvc;
 using lightinmyjune_api.Models;
 using lightinmyjune_api.Services.Interfaces;
-using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
+using LightInMyJuneAPI.Models;
 
-namespace lightinmyjune_api.Controllers;
-[ApiController]
-[Route("api/[controller]")]
-public class MusicController : ControllerBase
+namespace lightinmyjune_api.Controllers
 {
-    private readonly IMusicService _musicService;
-
-    public MusicController(IMusicService musicService)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class MusicController : ControllerBase
     {
-        _musicService = musicService;
-    }
+        private readonly IMusicService _lastFmMoodService;
 
-    [HttpPost("recommend")]
-    public async Task<IActionResult> GetMusicByMood([FromBody] MoodRequest request)
-    {
-        if (string.IsNullOrWhiteSpace(request.mood))
-            return BadRequest("Mood is required.");
+        public MusicController(IMusicService lastFmMoodService)
+        {
+            _lastFmMoodService = lastFmMoodService;
+        }
 
-        var tracks = await _musicService.GetTracksByMoodAsync(request.mood);
-
-        return Ok(tracks);
+        [HttpPost("recommend")]
+        public async Task<IActionResult> Recommend([FromBody] MoodRequest request)
+        {
+            var result = await _lastFmMoodService.GetTrackUrlsByMoodAsync(request.Mood);
+            return Ok(result);
+        }
     }
 }

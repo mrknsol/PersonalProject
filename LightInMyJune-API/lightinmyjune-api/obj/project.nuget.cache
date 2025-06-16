@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "VaaBxlWv+x8=",
+  "dgSpecHash": "YPm6/agEd4M=",
   "success": true,
   "projectFilePath": "/Users/mrknsol/Documents/LightInMyJune (1)/LightInMyJune-API/lightinmyjune-api/lightinmyjune-api.csproj",
   "expectedPackageFiles": [
@@ -20,6 +20,7 @@
     "/Users/mrknsol/.nuget/packages/microsoft.extensions.options.configurationextensions/9.0.5/microsoft.extensions.options.configurationextensions.9.0.5.nupkg.sha512",
     "/Users/mrknsol/.nuget/packages/microsoft.extensions.primitives/9.0.5/microsoft.extensions.primitives.9.0.5.nupkg.sha512",
     "/Users/mrknsol/.nuget/packages/microsoft.openapi/1.6.14/microsoft.openapi.1.6.14.nupkg.sha512",
+    "/Users/mrknsol/.nuget/packages/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg.sha512",
     "/Users/mrknsol/.nuget/packages/swashbuckle.aspnetcore/6.6.2/swashbuckle.aspnetcore.6.6.2.nupkg.sha512",
     "/Users/mrknsol/.nuget/packages/swashbuckle.aspnetcore.swagger/6.6.2/swashbuckle.aspnetcore.swagger.6.6.2.nupkg.sha512",
     "/Users/mrknsol/.nuget/packages/swashbuckle.aspnetcore.swaggergen/6.6.2/swashbuckle.aspnetcore.swaggergen.6.6.2.nupkg.sha512",
