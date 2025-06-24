@@ -36,7 +36,6 @@ export default function HomePage() {
     
     setFloatingElements(elements);
     
-    // Автопереключение пожеланий
     const wishInterval = setInterval(() => {
       setCurrentWish((prev) => (prev + 1) % wishes.length);
     }, 4000);
@@ -94,7 +93,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* Анимированный фон */}
       <div className="absolute inset-0 overflow-hidden">
         {floatingElements.map(renderFloatingElement)}
         
@@ -114,7 +112,6 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* Контент с анимацией */}
       <div className={`relative z-10 max-w-4xl w-full transition-all duration-1000 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <h1 className="text-white text-4xl md:text-6xl lg:text-7xl font-extrabold text-center mb-6 drop-shadow-lg">
           <span className="block mb-3 animate-pulse">💖 Моя любимая, с днём рождения! 💖</span>
@@ -123,7 +120,6 @@ export default function HomePage() {
           </span>
         </h1>
         
-        {/* Блок с меняющимися пожеланиями */}
         <div className="mt-12 mb-10 h-40 flex items-center justify-center">
           <div className="relative w-full max-w-2xl">
             {wishes.map((wish, index) => (
@@ -148,7 +144,6 @@ export default function HomePage() {
           </div>
         </div>
         
-        {/* Дополнительные пожелания */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
           <div className="bg-pink-200/30 backdrop-blur-sm rounded-2xl p-5 border-2 border-white/20 transition-all hover:scale-105">
             <p className="text-white text-lg text-center">
@@ -162,7 +157,6 @@ export default function HomePage() {
           </div>
         </div>
         
-        {/* Призыв к действию */}
         <div className="mt-12 text-center">
           <p className="text-white text-xl md:text-2xl font-light mb-4 drop-shadow-md">
             <span className="inline-block animate-bounce delay-300">↓</span>
@@ -184,7 +178,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Анимированные стили */}
       <style jsx>{`
         @keyframes float {
           0% {

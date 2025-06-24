@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/mrknsol/Documents/LightInMyJune (1)/LightInMyJune-API/lightinmyjune-api/lightinmyjune-api.csproj": {}
+    "/Users/mrknsol/Documents/LightInMyJune/LightInMyJune-API/lightinmyjune-api/lightinmyjune-api.csproj": {}
   },
   "projects": {
-    "/Users/mrknsol/Documents/LightInMyJune (1)/LightInMyJune-API/lightinmyjune-api/lightinmyjune-api.csproj": {
+    "/Users/mrknsol/Documents/LightInMyJune/LightInMyJune-API/lightinmyjune-api/lightinmyjune-api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/mrknsol/Documents/LightInMyJune (1)/LightInMyJune-API/lightinmyjune-api/lightinmyjune-api.csproj",
+        "projectUniqueName": "/Users/mrknsol/Documents/LightInMyJune/LightInMyJune-API/lightinmyjune-api/lightinmyjune-api.csproj",
         "projectName": "lightinmyjune-api",
-        "projectPath": "/Users/mrknsol/Documents/LightInMyJune (1)/LightInMyJune-API/lightinmyjune-api/lightinmyjune-api.csproj",
+        "projectPath": "/Users/mrknsol/Documents/LightInMyJune/LightInMyJune-API/lightinmyjune-api/lightinmyjune-api.csproj",
         "packagesPath": "/Users/mrknsol/.nuget/packages/",
-        "outputPath": "/Users/mrknsol/Documents/LightInMyJune (1)/LightInMyJune-API/lightinmyjune-api/obj/",
+        "outputPath": "/Users/mrknsol/Documents/LightInMyJune/LightInMyJune-API/lightinmyjune-api/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/mrknsol/.nuget/NuGet/NuGet.Config"

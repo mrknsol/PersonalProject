@@ -45,7 +45,6 @@ export default function WheelOfFortune() {
       <h1 className="text-3xl font-bold text-purple-700 mb-8 text-center">Колесо судьбы</h1>
 
       <div className="relative w-96 h-96">
-        {/* SVG колесо */}
         <svg
           ref={wheelRef}
           className="w-full h-full rounded-full shadow-lg"
@@ -63,7 +62,6 @@ export default function WheelOfFortune() {
             const x2 = 150 + radius * Math.cos((Math.PI * endAngle) / 180);
             const y2 = 150 + radius * Math.sin((Math.PI * endAngle) / 180);
 
-            // Обновленные цвета для секторов
             const fillColor = i % 2 === 0 ? '#c4b5fd' : '#fbcfe8';
             const strokeColor = i % 2 === 0 ? '#8b5cf6' : '#ec4899';
 
@@ -102,7 +100,6 @@ export default function WheelOfFortune() {
           })}
         </svg>
 
-        {/* Исправленная стрелка (справа по центру) */}
         <div className="absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 z-10">
           <svg width="32" height="32" viewBox="0 0 24 24">
             <polygon points="0,12 14,4 14,20" fill="#7e22ce" />

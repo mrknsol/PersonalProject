@@ -24,7 +24,6 @@ namespace lightinmyjune_api.Services.Classes
             _lastFmApiKey = configuration["LastFm:ApiKey"];
         }
 
-        // Получение токена Spotify
         public async Task<string> GetSpotifyAccessTokenAsync()
         {
             var clientId = "5050f4b1bc30494d8303ba323eceb67d";
@@ -53,7 +52,6 @@ namespace lightinmyjune_api.Services.Classes
             var spotifyToken = await GetSpotifyAccessTokenAsync();
 
             var random = new Random();
-            // Случайная страница от 1 до 4
             var page = random.Next(1, 5);
 
             var url = $"https://ws.audioscrobbler.com/2.0/?method=tag.gettoptracks&tag={Uri.EscapeDataString(mood)}&api_key={_lastFmApiKey}&format=json&limit=10&page={page}";
@@ -85,7 +83,6 @@ namespace lightinmyjune_api.Services.Classes
                 }
             }
 
-            // Перемешиваем и берем первые 5 треков (если меньше 5 — сколько есть)
             var shuffled = result.OrderBy(x => random.Next()).Take(5).ToList();
 
             return shuffled;

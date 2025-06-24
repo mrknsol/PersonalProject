@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { layoutChildren } from "../routes/routes"; // Импорт твоего массива маршрутов
+import { layoutChildren } from "../routes/routes"; 
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
