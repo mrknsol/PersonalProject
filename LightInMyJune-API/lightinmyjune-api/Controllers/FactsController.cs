@@ -29,7 +29,7 @@ namespace lightinmyjune_api.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Ошибка при получении факта: {ex.Message}");
+                return StatusCode(500, $"Error while getting random fact from server with error message: {ex.Message}");
             }
         }
         [HttpGet("CheckFactFile")]
