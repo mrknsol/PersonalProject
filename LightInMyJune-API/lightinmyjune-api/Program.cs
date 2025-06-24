@@ -6,15 +6,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpClient<IMusicService, MusicService>();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp",
-        policy =>
-        {
-            policy
-                .WithOrigins("http://localhost:3000", "https://твоя-фронт-ссылка.vercel.app") 
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        });
+    options.AddDefaultPolicy(policy =>
+    {
+        policy
+            .WithOrigins(
+                "https://personal-project-wine-beta.vercel.app", // твой фронт
+                "http://localhost:3000"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
 });
+
 
 builder.Services.AddControllers();
 
@@ -33,7 +36,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-app.UseCors("AllowReactApp");
+app.UseCors();
 app.MapControllers();
 
 app.Run();
