@@ -4,7 +4,6 @@ using lightinmyjune_api.Services.Interfaces;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpClient<IMusicService, MusicService>();
-builder.Services.AddSingleton<IFactService, FactsService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
