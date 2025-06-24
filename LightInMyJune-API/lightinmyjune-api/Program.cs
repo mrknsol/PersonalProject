@@ -11,7 +11,7 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins(
                 "https://personal-project-wine-beta.vercel.app",
-                "https://onethingforyou.vercel.app/music",
+                "https://onethingforyou.vercel.app",
                 "http://localhost:3000"
             )
             .AllowAnyHeader()
