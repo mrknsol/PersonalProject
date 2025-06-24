@@ -8,11 +8,15 @@ namespace lightinmyjune_api.Controllers
     [ApiController]
     public class FactsController : ControllerBase
     {
+        private readonly IWebHostEnvironment _env;
+
         private readonly IFactService _factService;
 
-        public FactsController(IFactService factService)
+        public FactsController(IFactService factService, IWebHostEnvironment env)
         {
+            _env = env;
             _factService = factService;
+
         }
 
         [HttpGet("GetFact")]
@@ -27,6 +31,14 @@ namespace lightinmyjune_api.Controllers
             {
                 return StatusCode(500, $"Ошибка при получении факта: {ex.Message}");
             }
+        }
+        [HttpGet("CheckFactFile")]
+        public IActionResult CheckFactFile()
+        {
+            var filePath = Path.Combine(_env.ContentRootPath, "Data", "facts.json");
+            return System.IO.File.Exists(filePath)
+                ? Ok($"Файл найден: {filePath}")
+                : NotFound($"Файл не найден: {filePath}");
         }
     }
 }
