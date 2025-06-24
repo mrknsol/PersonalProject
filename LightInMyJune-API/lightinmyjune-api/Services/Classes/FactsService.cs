@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text.Json;
 using lightinmyjune_api.Services.Interfaces;
 using Microsoft.AspNetCore.Hosting;
@@ -15,12 +16,14 @@ namespace lightinmyjune_api.Services.Classes
 
         public async Task<string> GetRandomFactAsync()
         {
-            var filePath = Path.Combine(_env.ContentRootPath, "Data", "facts.json");
+           var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = "lightinmyjune_api.Data.facts.json";
 
-            if (!File.Exists(filePath))
-                throw new FileNotFoundException($"Файл с фактами не найден по пути: {filePath}");
+            await using var stream = assembly.GetManifestResourceStream(resourceName);
+            if (stream == null) throw new FileNotFoundException("Embedded resource not found");
 
-            var json = await File.ReadAllTextAsync(filePath);
+            using var reader = new StreamReader(stream);
+            var json = await reader.ReadToEndAsync();
             var facts = JsonSerializer.Deserialize<List<string>>(json);
 
             if (facts == null || facts.Count == 0)

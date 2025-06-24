@@ -2,20 +2,25 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Копируем только .csproj и восстанавливаем зависимости
-COPY ["LightInMyJune-API/lightinmyjune-api/lightinmyjune-api.csproj", "lightinmyjune-api/"]
+# Копируем только .csproj для восстановления зависимостей
+COPY ["LightInMyJune-API/lightinmyjune-api/*.csproj", "lightinmyjune-api/"]
 RUN dotnet restore "lightinmyjune-api/lightinmyjune-api.csproj"
 
-# Копируем ВСЁ остальное (включая Data/facts.json)
-COPY ./LightInMyJune-API/lightinmyjune-api/ ./lightinmyjune-api/
+# Копируем ВСЕ остальные файлы
+COPY ["LightInMyJune-API/lightinmyjune-api/", "lightinmyjune-api/"]
 WORKDIR "/src/lightinmyjune-api"
+
+# Публикуем приложение
 RUN dotnet publish -c Release -o /app
 
 # Stage 2: Runtime
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
+
+# Копируем только результат публикации (включая Data из-за .csproj настройки)
 COPY --from=build /app .
-# Копируем папку Data из исходников
-COPY --from=build /src/lightinmyjune-api/Data ./Data
+
+# Проверка существования файла (для отладки)
+RUN if [ ! -f "Data/facts.json" ]; then echo "ERROR: facts.json missing!" && exit 1; fi
 
 ENTRYPOINT ["dotnet", "lightinmyjune-api.dll"]
