@@ -16,20 +16,17 @@ namespace lightinmyjune_api.Services.Classes
 
         public async Task<string> GetRandomFactAsync()
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = "lightinmyjune_api.Data.facts.json";
-
-            await using var stream = assembly.GetManifestResourceStream(resourceName);
-            if (stream == null)
-                throw new FileNotFoundException($"Embedded resource not found: {resourceName}");
-
-            using var reader = new StreamReader(stream);
-            var json = await reader.ReadToEndAsync();
+            var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "facts.json");
+    
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException($"Файл с фактами не найден по пути: {filePath}");
+            
+            var json = await File.ReadAllTextAsync(filePath);
             var facts = JsonSerializer.Deserialize<List<string>>(json);
-
+            
             if (facts == null || facts.Count == 0)
-                throw new InvalidOperationException("No facts found.");
-
+                throw new InvalidOperationException("Факты не найдены.");
+            
             var random = new Random();
             return facts[random.Next(facts.Count)];
         }
