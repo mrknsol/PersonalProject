@@ -1,9 +1,9 @@
 using System.Text.Json;
 using lightinmyjune_api.Services.Interfaces;
+using Microsoft.AspNetCore.Hosting;
 
-namespace lightinmyjune_api.Services.Classes;
-
-
+namespace lightinmyjune_api.Services.Classes
+{
     public class FactsService : IFactService
     {
         private readonly IWebHostEnvironment _env;
@@ -18,7 +18,7 @@ namespace lightinmyjune_api.Services.Classes;
             var filePath = Path.Combine(_env.ContentRootPath, "Data", "facts.json");
 
             if (!File.Exists(filePath))
-                throw new FileNotFoundException("Файл с фактами не найден.");
+                throw new FileNotFoundException($"Файл с фактами не найден по пути: {filePath}");
 
             var json = await File.ReadAllTextAsync(filePath);
             var facts = JsonSerializer.Deserialize<List<string>>(json);
@@ -30,3 +30,4 @@ namespace lightinmyjune_api.Services.Classes;
             return facts[random.Next(facts.Count)];
         }
     }
+}
