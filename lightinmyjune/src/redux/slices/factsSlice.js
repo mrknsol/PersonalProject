@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 export const fetchFact = createAsyncThunk('facts/fetchFact', async () => {
-  const response = await fetch('http://localhost:5274/api/Facts/GetFact'); 
+  const response = await fetch(`${process.env.REACT_APP_API_URL}/api/Facts/GetFact`);
   if (!response.ok) {
     throw new Error('Ошибка при попытке получить факт');
   }
